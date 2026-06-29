@@ -18,5 +18,14 @@ public interface CustomerRepository extends JpaRepository<Customer,Long> {
     Optional<Customer> findByDocumentNumber(String documentNumber);
 
     List<Customer> findByFullName(String name);
+    /**
+     * para buscar al cliente por documento y el celular.
+     * @param documentNumber
+     * @param phoneNumber
+     * @return
+     */
+     Optional<Customer> findByDocumentNumberAndPhoneNumber(
+            String documentNumber,
+            String phoneNumber);
     
 }

@@ -7,12 +7,14 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.API.billetera.dto.request.PayWalletRequestDTO;
 import com.API.billetera.dto.request.WalletRechargeRequestDTO;
 import com.API.billetera.dto.request.WalletRequestDTO;
 import com.API.billetera.dto.response.MessageResponseDTO;
 import com.API.billetera.dto.response.WalletResponseDTO;
 import com.API.billetera.entity.Customer;
 import com.API.billetera.entity.Wallet;
+import com.API.billetera.repository.CustomerRepository;
 import com.API.billetera.repository.WalletRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class WalletService {
 
 private final WalletRepository walletRepository;
+private final CustomerRepository customerRepository;
 /**
  * Hacemos el metodo para crear la biletera 
  * @param request
@@ -80,6 +83,30 @@ public List<WalletResponseDTO> getBalance(){
         WalletResponseDTO response = new WalletResponseDTO();
         response.setId(wallet.getId());
         response.setCustomerId(wallet.getCustomer().getId());
+        response.setBalance(wallet.getBalance());
+        return response;
+    }
+    public WalletResponseDTO payWalletResponseDTO(PayWalletRequestDTO request) {
+        Customer customer = customerRepository.findByDocumentNumberAndPhoneNumber(
+            request.getDocumentNumber(),
+            request.getPhoneNumber()).orElseThrow(
+                () -> new RuntimeException("Cliente no encontrado"));
+
+        Wallet wallet = walletRepository.findByCustomerId(customer.getId())
+        .orElseThrow(() -> new RuntimeException("Billetera no encontrada"));
+        if(request.getAmount().compareTo(BigDecimal.ZERO) <= 0){
+            throw new RuntimeException("El valor del pago debe de ser mayor que cero");
+        }
+        if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new RuntimeException("Saldo insuficiente");
+        }
+        BigDecimal newBalance = wallet.getBalance().subtract(request.getAmount());
+        wallet.setBalance(newBalance);
+        walletRepository.save(wallet);
+
+        WalletResponseDTO response = new WalletResponseDTO();
+        response.setId(wallet.getId());
+        response.setCustomerId(customer.getId());
         response.setBalance(wallet.getBalance());
         return response;
     }
