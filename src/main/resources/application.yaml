@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: billetera
+    
+  datasource:
+   url: jdbc:mysql://localhost:3306/billetera?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+   username: root
+   password: 
+   driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa: # Configuración de JPA/Hibernate (ORM)
+    database-platform: org.hibernate.dialect.MySQLDialect # Dialecto para MySQL: traduce SQL a sintaxis MySQL
+    hibernate: # Subconfig de Hibernate
+      ddl-auto: validate # Crear/Actualizar tablas automaticamente
+    show-sql: true # Mostrar SQL generado en los logs
+    properties: # Propiedades extras de hibernate
+      hibernate:
+        format-sql: true # Formate SQL en los log para mayor legibilidad
+
+
+server:
+  port: 9090
+  servlet:
+    context-path: /api/v1/cajero
+
+logging:
+  level:
+    '[org.springframework.web]': INFO
+
+security:
+  jwt:
+  # clave secreta que se genera con openssl rand -base64 32
+    secret-key: gwZXBlSw16u7IsAM1MQVpo1I2mBlGe9ElxQ74zWDOJM=
+    #Expiracion expresada en ms(10 min)
+    token-expiration: 600000
